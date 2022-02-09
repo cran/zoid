@@ -4,13 +4,14 @@ data { // set up to run a single instance (1 stock) of GSI observations
   matrix[N_samples, N_bins] X; // proportions
   int N_covar; // number of covariates in design matrix X
   matrix[N_samples, N_covar] design_X;
+  int prod_idx[N_bins,N_bins-1];
   int overdisp; // whether or not to include overdispersion term
   int postpred; // whether or not to include posterior predictive samples
   real prior_sd;
 }
 transformed data {
   int is_zero[N_samples,N_bins]; // indicator for data being 1
-  int is_one[N_samples,N_bins]; // indicator for data being 0
+  //int is_one[N_samples,N_bins]; // indicator for data being 0
   int is_proportion[N_samples,N_bins]; // indicator which elements to estimate
   matrix[N_samples, N_bins] logX; // log proportions
   matrix[N_samples, N_bins] logNX; // log proportions
@@ -36,13 +37,9 @@ transformed data {
         is_zero[i,j] = 0;
       }
 
-      if(X[i,j]==ESS[i]) {
-        is_one[i,j] = 1;
-      } else {
-        is_one[i,j] = 0;
+      if(X[i,j] < ESS[i] && X[i,j] > 0) {
+        is_proportion[i,j] = 1;
       }
-
-      is_proportion[i,j] = (1-is_zero[i,j]) * (1-is_one[i,j]);
     }
 
   }
@@ -59,11 +56,11 @@ transformed data {
 
 }
 parameters {
-  vector[overdisp] phi_inv; // overdispersion
+  vector<lower=0>[overdisp] phi_inv; // overdispersion
   matrix[N_bins-1,N_covar] beta_raw;
 }
 transformed parameters {
-  real phi;
+  real<lower=0> phi;
   matrix<lower=0,upper=1>[N_samples, N_bins] p_zero; // probability of 0 for each cell
   matrix<lower=0,upper=1>[N_samples, N_bins] p_one; // probability of 1 for each cell
   matrix[N_bins,N_covar] beta; // coefficients
@@ -71,7 +68,6 @@ transformed parameters {
   // phi is dynamic
   phi = 1;
   if(overdisp==1) {phi = 1/phi_inv[1];}
-
   for (l in 1:N_covar) {
     beta[N_bins,l] = 0.0;
   }
@@ -96,7 +92,12 @@ transformed parameters {
   for(i in 1:N_samples) {
     for(j in 1:N_bins) {
       p_zero[i,j] = (1-mu[i,j])^(ESS[i]*phi);
-      p_one[i,j] = mu[i,j]^(ESS[i]*phi);
+      // calculate probability = 1 as derived
+      // = Pr(all other groups = 0 AND group of interest != 0)
+    }
+    // need 2 loops here because all quantites above used below
+    for(j in 1:N_bins) {
+      p_one[i,j] = (1 - p_zero[i,j]) * prod(p_zero[i, prod_idx[j,:]]);
     }
   }
 
@@ -119,7 +120,6 @@ model {
     for(j in 1:N_bins) {
       // marginals of the trinomial are independent binomials
       target += bernoulli_lpmf(is_zero[i,j]| p_zero[i,j]);
-      target += bernoulli_lpmf(is_one[i,j]| p_one[i,j]);
 
       if(is_proportion[i,j]==1) {
         alpha_temp = mu[i,j]*ESS[i]*phi;
@@ -144,7 +144,6 @@ generated quantities {
     for(j in 1:N_bins) {
       log_lik[i,j] = 0;
       log_lik[i,j] += bernoulli_lpmf(is_zero[i,j]| p_zero[i,j]);
-      log_lik[i,j] += bernoulli_lpmf(is_one[i,j]| p_one[i,j]);
       if(is_proportion[i,j]==1) {
         alpha_temp = mu[i,j]*ESS[i]*phi;
         beta_temp = (1-mu[i,j])*ESS[i]*phi;

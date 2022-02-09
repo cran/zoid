@@ -33,7 +33,7 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_dirichregmod");
-    reader.add_event(172, 170, "end", "model_dirichregmod");
+    reader.add_event(171, 169, "end", "model_dirichregmod");
     return reader;
 }
 #include <stan_meta_header.hpp>
@@ -45,11 +45,11 @@ private:
         matrix_d X;
         int N_covar;
         matrix_d design_X;
+        std::vector<std::vector<int> > prod_idx;
         int overdisp;
         int postpred;
         double prior_sd;
         std::vector<std::vector<int> > is_zero;
-        std::vector<std::vector<int> > is_one;
         std::vector<std::vector<int> > is_proportion;
         matrix_d logX;
         matrix_d logNX;
@@ -132,133 +132,131 @@ public:
                 }
             }
             current_statement_begin__ = 7;
+            validate_non_negative_index("prod_idx", "N_bins", N_bins);
+            validate_non_negative_index("prod_idx", "(N_bins - 1)", (N_bins - 1));
+            context__.validate_dims("data initialization", "prod_idx", "int", context__.to_vec(N_bins,(N_bins - 1)));
+            prod_idx = std::vector<std::vector<int> >(N_bins, std::vector<int>((N_bins - 1), int(0)));
+            vals_i__ = context__.vals_i("prod_idx");
+            pos__ = 0;
+            size_t prod_idx_k_0_max__ = N_bins;
+            size_t prod_idx_k_1_max__ = (N_bins - 1);
+            for (size_t k_1__ = 0; k_1__ < prod_idx_k_1_max__; ++k_1__) {
+                for (size_t k_0__ = 0; k_0__ < prod_idx_k_0_max__; ++k_0__) {
+                    prod_idx[k_0__][k_1__] = vals_i__[pos__++];
+                }
+            }
+            current_statement_begin__ = 8;
             context__.validate_dims("data initialization", "overdisp", "int", context__.to_vec());
             overdisp = int(0);
             vals_i__ = context__.vals_i("overdisp");
             pos__ = 0;
             overdisp = vals_i__[pos__++];
-            current_statement_begin__ = 8;
+            current_statement_begin__ = 9;
             context__.validate_dims("data initialization", "postpred", "int", context__.to_vec());
             postpred = int(0);
             vals_i__ = context__.vals_i("postpred");
             pos__ = 0;
             postpred = vals_i__[pos__++];
-            current_statement_begin__ = 9;
+            current_statement_begin__ = 10;
             context__.validate_dims("data initialization", "prior_sd", "double", context__.to_vec());
             prior_sd = double(0);
             vals_r__ = context__.vals_r("prior_sd");
             pos__ = 0;
             prior_sd = vals_r__[pos__++];
             // initialize transformed data variables
-            current_statement_begin__ = 12;
+            current_statement_begin__ = 13;
             validate_non_negative_index("is_zero", "N_samples", N_samples);
             validate_non_negative_index("is_zero", "N_bins", N_bins);
             is_zero = std::vector<std::vector<int> >(N_samples, std::vector<int>(N_bins, int(0)));
             stan::math::fill(is_zero, std::numeric_limits<int>::min());
-            current_statement_begin__ = 13;
-            validate_non_negative_index("is_one", "N_samples", N_samples);
-            validate_non_negative_index("is_one", "N_bins", N_bins);
-            is_one = std::vector<std::vector<int> >(N_samples, std::vector<int>(N_bins, int(0)));
-            stan::math::fill(is_one, std::numeric_limits<int>::min());
-            current_statement_begin__ = 14;
+            current_statement_begin__ = 15;
             validate_non_negative_index("is_proportion", "N_samples", N_samples);
             validate_non_negative_index("is_proportion", "N_bins", N_bins);
             is_proportion = std::vector<std::vector<int> >(N_samples, std::vector<int>(N_bins, int(0)));
             stan::math::fill(is_proportion, std::numeric_limits<int>::min());
-            current_statement_begin__ = 15;
+            current_statement_begin__ = 16;
             validate_non_negative_index("logX", "N_samples", N_samples);
             validate_non_negative_index("logX", "N_bins", N_bins);
             logX = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>(N_samples, N_bins);
             stan::math::fill(logX, DUMMY_VAR__);
-            current_statement_begin__ = 16;
+            current_statement_begin__ = 17;
             validate_non_negative_index("logNX", "N_samples", N_samples);
             validate_non_negative_index("logNX", "N_bins", N_bins);
             logNX = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>(N_samples, N_bins);
             stan::math::fill(logNX, DUMMY_VAR__);
-            current_statement_begin__ = 17;
+            current_statement_begin__ = 18;
             validate_non_negative_index("ESS", "N_samples", N_samples);
             ESS = Eigen::Matrix<double, Eigen::Dynamic, 1>(N_samples);
             stan::math::fill(ESS, DUMMY_VAR__);
-            current_statement_begin__ = 18;
+            current_statement_begin__ = 19;
             validate_non_negative_index("ones", "N_bins", N_bins);
             ones = Eigen::Matrix<double, Eigen::Dynamic, 1>(N_bins);
             stan::math::fill(ones, DUMMY_VAR__);
             // execute transformed data statements
-            current_statement_begin__ = 21;
+            current_statement_begin__ = 22;
             for (int i = 1; i <= N_bins; ++i) {
-                current_statement_begin__ = 22;
+                current_statement_begin__ = 23;
                 stan::model::assign(ones, 
                             stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
                             1, 
                             "assigning variable ones");
             }
-            current_statement_begin__ = 25;
+            current_statement_begin__ = 26;
             for (int i = 1; i <= N_samples; ++i) {
-                current_statement_begin__ = 26;
+                current_statement_begin__ = 27;
                 stan::model::assign(ESS, 
                             stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
                             0, 
                             "assigning variable ESS");
-                current_statement_begin__ = 27;
+                current_statement_begin__ = 28;
                 for (int j = 1; j <= N_bins; ++j) {
-                    current_statement_begin__ = 28;
+                    current_statement_begin__ = 29;
                     stan::model::assign(ESS, 
                                 stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
                                 (get_base1(ESS, i, "ESS", 1) + get_base1(X, i, j, "X", 1)), 
                                 "assigning variable ESS");
                 }
             }
-            current_statement_begin__ = 31;
+            current_statement_begin__ = 32;
             for (int i = 1; i <= N_samples; ++i) {
-                current_statement_begin__ = 32;
+                current_statement_begin__ = 33;
                 for (int j = 1; j <= N_bins; ++j) {
-                    current_statement_begin__ = 33;
+                    current_statement_begin__ = 34;
                     if (as_bool(logical_eq(get_base1(X, i, j, "X", 1), 0))) {
-                        current_statement_begin__ = 34;
+                        current_statement_begin__ = 35;
                         stan::model::assign(is_zero, 
                                     stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
                                     1, 
                                     "assigning variable is_zero");
                     } else {
-                        current_statement_begin__ = 36;
+                        current_statement_begin__ = 37;
                         stan::model::assign(is_zero, 
                                     stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
                                     0, 
                                     "assigning variable is_zero");
                     }
-                    current_statement_begin__ = 39;
-                    if (as_bool(logical_eq(get_base1(X, i, j, "X", 1), get_base1(ESS, i, "ESS", 1)))) {
-                        current_statement_begin__ = 40;
-                        stan::model::assign(is_one, 
+                    current_statement_begin__ = 40;
+                    if (as_bool((primitive_value(logical_lt(get_base1(X, i, j, "X", 1), get_base1(ESS, i, "ESS", 1))) && primitive_value(logical_gt(get_base1(X, i, j, "X", 1), 0))))) {
+                        current_statement_begin__ = 41;
+                        stan::model::assign(is_proportion, 
                                     stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
                                     1, 
-                                    "assigning variable is_one");
-                    } else {
-                        current_statement_begin__ = 42;
-                        stan::model::assign(is_one, 
-                                    stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
-                                    0, 
-                                    "assigning variable is_one");
+                                    "assigning variable is_proportion");
                     }
-                    current_statement_begin__ = 45;
-                    stan::model::assign(is_proportion, 
-                                stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
-                                ((1 - get_base1(get_base1(is_zero, i, "is_zero", 1), j, "is_zero", 2)) * (1 - get_base1(get_base1(is_one, i, "is_one", 1), j, "is_one", 2))), 
-                                "assigning variable is_proportion");
                 }
             }
-            current_statement_begin__ = 51;
+            current_statement_begin__ = 48;
             for (int i = 1; i <= N_samples; ++i) {
-                current_statement_begin__ = 52;
+                current_statement_begin__ = 49;
                 for (int j = 1; j <= N_bins; ++j) {
-                    current_statement_begin__ = 53;
+                    current_statement_begin__ = 50;
                     if (as_bool(logical_eq(get_base1(get_base1(is_proportion, i, "is_proportion", 1), j, "is_proportion", 2), 1))) {
-                        current_statement_begin__ = 54;
+                        current_statement_begin__ = 51;
                         stan::model::assign(logX, 
                                     stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
                                     stan::math::log(get_base1(X, i, j, "X", 1)), 
                                     "assigning variable logX");
-                        current_statement_begin__ = 55;
+                        current_statement_begin__ = 52;
                         stan::model::assign(logNX, 
                                     stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
                                     stan::math::log((get_base1(ESS, i, "ESS", 1) - get_base1(X, i, j, "X", 1))), 
@@ -270,10 +268,10 @@ public:
             // validate, set parameter ranges
             num_params_r__ = 0U;
             param_ranges_i__.clear();
-            current_statement_begin__ = 62;
+            current_statement_begin__ = 59;
             validate_non_negative_index("phi_inv", "overdisp", overdisp);
             num_params_r__ += overdisp;
-            current_statement_begin__ = 63;
+            current_statement_begin__ = 60;
             validate_non_negative_index("beta_raw", "(N_bins - 1)", (N_bins - 1));
             validate_non_negative_index("beta_raw", "N_covar", N_covar);
             num_params_r__ += ((N_bins - 1) * N_covar);
@@ -294,7 +292,7 @@ public:
         (void) pos__; // dummy call to supress warning
         std::vector<double> vals_r__;
         std::vector<int> vals_i__;
-        current_statement_begin__ = 62;
+        current_statement_begin__ = 59;
         if (!(context__.contains_r("phi_inv")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable phi_inv missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("phi_inv");
@@ -307,11 +305,11 @@ public:
             phi_inv(j_1__) = vals_r__[pos__++];
         }
         try {
-            writer__.vector_unconstrain(phi_inv);
+            writer__.vector_lb_unconstrain(0, phi_inv);
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable phi_inv: ") + e.what()), current_statement_begin__, prog_reader__());
         }
-        current_statement_begin__ = 63;
+        current_statement_begin__ = 60;
         if (!(context__.contains_r("beta_raw")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable beta_raw missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("beta_raw");
@@ -357,14 +355,14 @@ public:
         try {
             stan::io::reader<local_scalar_t__> in__(params_r__, params_i__);
             // model parameters
-            current_statement_begin__ = 62;
+            current_statement_begin__ = 59;
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> phi_inv;
             (void) phi_inv;  // dummy to suppress unused var warning
             if (jacobian__)
-                phi_inv = in__.vector_constrain(overdisp, lp__);
+                phi_inv = in__.vector_lb_constrain(0, overdisp, lp__);
             else
-                phi_inv = in__.vector_constrain(overdisp);
-            current_statement_begin__ = 63;
+                phi_inv = in__.vector_lb_constrain(0, overdisp);
+            current_statement_begin__ = 60;
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> beta_raw;
             (void) beta_raw;  // dummy to suppress unused var warning
             if (jacobian__)
@@ -372,83 +370,83 @@ public:
             else
                 beta_raw = in__.matrix_constrain((N_bins - 1), N_covar);
             // transformed parameters
-            current_statement_begin__ = 66;
+            current_statement_begin__ = 63;
             local_scalar_t__ phi;
             (void) phi;  // dummy to suppress unused var warning
             stan::math::initialize(phi, DUMMY_VAR__);
             stan::math::fill(phi, DUMMY_VAR__);
-            current_statement_begin__ = 67;
+            current_statement_begin__ = 64;
             validate_non_negative_index("p_zero", "N_samples", N_samples);
             validate_non_negative_index("p_zero", "N_bins", N_bins);
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> p_zero(N_samples, N_bins);
             stan::math::initialize(p_zero, DUMMY_VAR__);
             stan::math::fill(p_zero, DUMMY_VAR__);
-            current_statement_begin__ = 68;
+            current_statement_begin__ = 65;
             validate_non_negative_index("p_one", "N_samples", N_samples);
             validate_non_negative_index("p_one", "N_bins", N_bins);
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> p_one(N_samples, N_bins);
             stan::math::initialize(p_one, DUMMY_VAR__);
             stan::math::fill(p_one, DUMMY_VAR__);
-            current_statement_begin__ = 69;
+            current_statement_begin__ = 66;
             validate_non_negative_index("beta", "N_bins", N_bins);
             validate_non_negative_index("beta", "N_covar", N_covar);
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> beta(N_bins, N_covar);
             stan::math::initialize(beta, DUMMY_VAR__);
             stan::math::fill(beta, DUMMY_VAR__);
-            current_statement_begin__ = 70;
+            current_statement_begin__ = 67;
             validate_non_negative_index("mu", "N_samples", N_samples);
             validate_non_negative_index("mu", "N_bins", N_bins);
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> mu(N_samples, N_bins);
             stan::math::initialize(mu, DUMMY_VAR__);
             stan::math::fill(mu, DUMMY_VAR__);
             // transformed parameters block statements
-            current_statement_begin__ = 72;
+            current_statement_begin__ = 69;
             stan::math::assign(phi, 1);
-            current_statement_begin__ = 73;
+            current_statement_begin__ = 70;
             if (as_bool(logical_eq(overdisp, 1))) {
-                current_statement_begin__ = 73;
+                current_statement_begin__ = 70;
                 stan::math::assign(phi, (1 / get_base1(phi_inv, 1, "phi_inv", 1)));
             }
-            current_statement_begin__ = 75;
+            current_statement_begin__ = 71;
             for (int l = 1; l <= N_covar; ++l) {
-                current_statement_begin__ = 76;
+                current_statement_begin__ = 72;
                 stan::model::assign(beta, 
                             stan::model::cons_list(stan::model::index_uni(N_bins), stan::model::cons_list(stan::model::index_uni(l), stan::model::nil_index_list())), 
                             0.0, 
                             "assigning variable beta");
             }
-            current_statement_begin__ = 78;
+            current_statement_begin__ = 74;
             for (int k = 1; k <= (N_bins - 1); ++k) {
-                current_statement_begin__ = 79;
+                current_statement_begin__ = 75;
                 for (int l = 1; l <= N_covar; ++l) {
-                    current_statement_begin__ = 80;
+                    current_statement_begin__ = 76;
                     stan::model::assign(beta, 
                                 stan::model::cons_list(stan::model::index_uni(k), stan::model::cons_list(stan::model::index_uni(l), stan::model::nil_index_list())), 
                                 get_base1(beta_raw, k, l, "beta_raw", 1), 
                                 "assigning variable beta");
                 }
             }
-            current_statement_begin__ = 85;
+            current_statement_begin__ = 81;
             for (int n = 1; n <= N_samples; ++n) {
                 {
-                current_statement_begin__ = 86;
+                current_statement_begin__ = 82;
                 validate_non_negative_index("logits", "N_bins", N_bins);
                 Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> logits(N_bins);
                 stan::math::initialize(logits, DUMMY_VAR__);
                 stan::math::fill(logits, DUMMY_VAR__);
-                current_statement_begin__ = 87;
+                current_statement_begin__ = 83;
                 for (int m = 1; m <= N_bins; ++m) {
-                    current_statement_begin__ = 88;
+                    current_statement_begin__ = 84;
                     stan::model::assign(logits, 
                                 stan::model::cons_list(stan::model::index_uni(m), stan::model::nil_index_list()), 
                                 multiply(stan::model::rvalue(design_X, stan::model::cons_list(stan::model::index_uni(n), stan::model::cons_list(stan::model::index_omni(), stan::model::nil_index_list())), "design_X"), transpose(stan::model::rvalue(beta, stan::model::cons_list(stan::model::index_uni(m), stan::model::cons_list(stan::model::index_omni(), stan::model::nil_index_list())), "beta"))), 
                                 "assigning variable logits");
                 }
-                current_statement_begin__ = 90;
+                current_statement_begin__ = 86;
                 stan::math::assign(logits, softmax(logits));
-                current_statement_begin__ = 91;
+                current_statement_begin__ = 87;
                 for (int m = 1; m <= N_bins; ++m) {
-                    current_statement_begin__ = 92;
+                    current_statement_begin__ = 88;
                     stan::model::assign(mu, 
                                 stan::model::cons_list(stan::model::index_uni(n), stan::model::cons_list(stan::model::index_uni(m), stan::model::nil_index_list())), 
                                 get_base1(logits, m, "logits", 1), 
@@ -456,32 +454,36 @@ public:
                 }
                 }
             }
-            current_statement_begin__ = 96;
+            current_statement_begin__ = 92;
             for (int i = 1; i <= N_samples; ++i) {
-                current_statement_begin__ = 97;
+                current_statement_begin__ = 93;
                 for (int j = 1; j <= N_bins; ++j) {
-                    current_statement_begin__ = 98;
+                    current_statement_begin__ = 94;
                     stan::model::assign(p_zero, 
                                 stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
                                 pow((1 - get_base1(mu, i, j, "mu", 1)), (get_base1(ESS, i, "ESS", 1) * phi)), 
                                 "assigning variable p_zero");
-                    current_statement_begin__ = 99;
+                }
+                current_statement_begin__ = 99;
+                for (int j = 1; j <= N_bins; ++j) {
+                    current_statement_begin__ = 100;
                     stan::model::assign(p_one, 
                                 stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
-                                pow(get_base1(mu, i, j, "mu", 1), (get_base1(ESS, i, "ESS", 1) * phi)), 
+                                ((1 - get_base1(p_zero, i, j, "p_zero", 1)) * prod(stan::model::rvalue(p_zero, stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_multi(stan::model::rvalue(prod_idx, stan::model::cons_list(stan::model::index_uni(j), stan::model::cons_list(stan::model::index_omni(), stan::model::nil_index_list())), "prod_idx")), stan::model::nil_index_list())), "p_zero"))), 
                                 "assigning variable p_one");
                 }
             }
             // validate transformed parameters
             const char* function__ = "validate transformed params";
             (void) function__;  // dummy to suppress unused var warning
-            current_statement_begin__ = 66;
+            current_statement_begin__ = 63;
             if (stan::math::is_uninitialized(phi)) {
                 std::stringstream msg__;
                 msg__ << "Undefined transformed parameter: phi";
                 stan::lang::rethrow_located(std::runtime_error(std::string("Error initializing variable phi: ") + msg__.str()), current_statement_begin__, prog_reader__());
             }
-            current_statement_begin__ = 67;
+            check_greater_or_equal(function__, "phi", phi, 0);
+            current_statement_begin__ = 64;
             size_t p_zero_j_1_max__ = N_samples;
             size_t p_zero_j_2_max__ = N_bins;
             for (size_t j_1__ = 0; j_1__ < p_zero_j_1_max__; ++j_1__) {
@@ -495,7 +497,7 @@ public:
             }
             check_greater_or_equal(function__, "p_zero", p_zero, 0);
             check_less_or_equal(function__, "p_zero", p_zero, 1);
-            current_statement_begin__ = 68;
+            current_statement_begin__ = 65;
             size_t p_one_j_1_max__ = N_samples;
             size_t p_one_j_2_max__ = N_bins;
             for (size_t j_1__ = 0; j_1__ < p_one_j_1_max__; ++j_1__) {
@@ -509,7 +511,7 @@ public:
             }
             check_greater_or_equal(function__, "p_one", p_one, 0);
             check_less_or_equal(function__, "p_one", p_one, 1);
-            current_statement_begin__ = 69;
+            current_statement_begin__ = 66;
             size_t beta_j_1_max__ = N_bins;
             size_t beta_j_2_max__ = N_covar;
             for (size_t j_1__ = 0; j_1__ < beta_j_1_max__; ++j_1__) {
@@ -521,7 +523,7 @@ public:
                     }
                 }
             }
-            current_statement_begin__ = 70;
+            current_statement_begin__ = 67;
             size_t mu_j_1_max__ = N_samples;
             size_t mu_j_2_max__ = N_bins;
             for (size_t j_1__ = 0; j_1__ < mu_j_1_max__; ++j_1__) {
@@ -537,37 +539,35 @@ public:
             check_less_or_equal(function__, "mu", mu, 1);
             // model body
             {
-            current_statement_begin__ = 105;
+            current_statement_begin__ = 106;
             local_scalar_t__ alpha_temp(DUMMY_VAR__);
             (void) alpha_temp;  // dummy to suppress unused var warning
             stan::math::initialize(alpha_temp, DUMMY_VAR__);
             stan::math::fill(alpha_temp, DUMMY_VAR__);
-            current_statement_begin__ = 106;
+            current_statement_begin__ = 107;
             local_scalar_t__ beta_temp(DUMMY_VAR__);
             (void) beta_temp;  // dummy to suppress unused var warning
             stan::math::initialize(beta_temp, DUMMY_VAR__);
             stan::math::fill(beta_temp, DUMMY_VAR__);
-            current_statement_begin__ = 108;
+            current_statement_begin__ = 109;
             if (as_bool(logical_eq(overdisp, 1))) {
-                current_statement_begin__ = 109;
+                current_statement_begin__ = 110;
                 lp_accum__.add(cauchy_log<propto__>(phi_inv, 0, 5));
             }
-            current_statement_begin__ = 112;
+            current_statement_begin__ = 113;
             for (int i = 1; i <= N_covar; ++i) {
-                current_statement_begin__ = 113;
+                current_statement_begin__ = 114;
                 for (int j = 1; j <= (N_bins - 1); ++j) {
-                    current_statement_begin__ = 114;
+                    current_statement_begin__ = 115;
                     lp_accum__.add(normal_log<propto__>(get_base1(beta_raw, j, i, "beta_raw", 1), 0, prior_sd));
                 }
             }
-            current_statement_begin__ = 118;
+            current_statement_begin__ = 119;
             for (int i = 1; i <= N_samples; ++i) {
-                current_statement_begin__ = 119;
+                current_statement_begin__ = 120;
                 for (int j = 1; j <= N_bins; ++j) {
-                    current_statement_begin__ = 121;
-                    lp_accum__.add(bernoulli_log(get_base1(get_base1(is_zero, i, "is_zero", 1), j, "is_zero", 2), get_base1(p_zero, i, j, "p_zero", 1)));
                     current_statement_begin__ = 122;
-                    lp_accum__.add(bernoulli_log(get_base1(get_base1(is_one, i, "is_one", 1), j, "is_one", 2), get_base1(p_one, i, j, "p_one", 1)));
+                    lp_accum__.add(bernoulli_log(get_base1(get_base1(is_zero, i, "is_zero", 1), j, "is_zero", 2), get_base1(p_zero, i, j, "p_zero", 1)));
                     current_statement_begin__ = 124;
                     if (as_bool(logical_eq(get_base1(get_base1(is_proportion, i, "is_proportion", 1), j, "is_proportion", 2), 1))) {
                         current_statement_begin__ = 125;
@@ -680,7 +680,7 @@ public:
         static const char* function__ = "model_dirichregmod_namespace::write_array";
         (void) function__;  // dummy to suppress unused var warning
         // read-transform, write parameters
-        Eigen::Matrix<double, Eigen::Dynamic, 1> phi_inv = in__.vector_constrain(overdisp);
+        Eigen::Matrix<double, Eigen::Dynamic, 1> phi_inv = in__.vector_lb_constrain(0, overdisp);
         size_t phi_inv_j_1_max__ = overdisp;
         for (size_t j_1__ = 0; j_1__ < phi_inv_j_1_max__; ++j_1__) {
             vars__.push_back(phi_inv(j_1__));
@@ -701,83 +701,83 @@ public:
         if (!include_tparams__ && !include_gqs__) return;
         try {
             // declare and define transformed parameters
-            current_statement_begin__ = 66;
+            current_statement_begin__ = 63;
             double phi;
             (void) phi;  // dummy to suppress unused var warning
             stan::math::initialize(phi, DUMMY_VAR__);
             stan::math::fill(phi, DUMMY_VAR__);
-            current_statement_begin__ = 67;
+            current_statement_begin__ = 64;
             validate_non_negative_index("p_zero", "N_samples", N_samples);
             validate_non_negative_index("p_zero", "N_bins", N_bins);
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> p_zero(N_samples, N_bins);
             stan::math::initialize(p_zero, DUMMY_VAR__);
             stan::math::fill(p_zero, DUMMY_VAR__);
-            current_statement_begin__ = 68;
+            current_statement_begin__ = 65;
             validate_non_negative_index("p_one", "N_samples", N_samples);
             validate_non_negative_index("p_one", "N_bins", N_bins);
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> p_one(N_samples, N_bins);
             stan::math::initialize(p_one, DUMMY_VAR__);
             stan::math::fill(p_one, DUMMY_VAR__);
-            current_statement_begin__ = 69;
+            current_statement_begin__ = 66;
             validate_non_negative_index("beta", "N_bins", N_bins);
             validate_non_negative_index("beta", "N_covar", N_covar);
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> beta(N_bins, N_covar);
             stan::math::initialize(beta, DUMMY_VAR__);
             stan::math::fill(beta, DUMMY_VAR__);
-            current_statement_begin__ = 70;
+            current_statement_begin__ = 67;
             validate_non_negative_index("mu", "N_samples", N_samples);
             validate_non_negative_index("mu", "N_bins", N_bins);
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> mu(N_samples, N_bins);
             stan::math::initialize(mu, DUMMY_VAR__);
             stan::math::fill(mu, DUMMY_VAR__);
             // do transformed parameters statements
-            current_statement_begin__ = 72;
+            current_statement_begin__ = 69;
             stan::math::assign(phi, 1);
-            current_statement_begin__ = 73;
+            current_statement_begin__ = 70;
             if (as_bool(logical_eq(overdisp, 1))) {
-                current_statement_begin__ = 73;
+                current_statement_begin__ = 70;
                 stan::math::assign(phi, (1 / get_base1(phi_inv, 1, "phi_inv", 1)));
             }
-            current_statement_begin__ = 75;
+            current_statement_begin__ = 71;
             for (int l = 1; l <= N_covar; ++l) {
-                current_statement_begin__ = 76;
+                current_statement_begin__ = 72;
                 stan::model::assign(beta, 
                             stan::model::cons_list(stan::model::index_uni(N_bins), stan::model::cons_list(stan::model::index_uni(l), stan::model::nil_index_list())), 
                             0.0, 
                             "assigning variable beta");
             }
-            current_statement_begin__ = 78;
+            current_statement_begin__ = 74;
             for (int k = 1; k <= (N_bins - 1); ++k) {
-                current_statement_begin__ = 79;
+                current_statement_begin__ = 75;
                 for (int l = 1; l <= N_covar; ++l) {
-                    current_statement_begin__ = 80;
+                    current_statement_begin__ = 76;
                     stan::model::assign(beta, 
                                 stan::model::cons_list(stan::model::index_uni(k), stan::model::cons_list(stan::model::index_uni(l), stan::model::nil_index_list())), 
                                 get_base1(beta_raw, k, l, "beta_raw", 1), 
                                 "assigning variable beta");
                 }
             }
-            current_statement_begin__ = 85;
+            current_statement_begin__ = 81;
             for (int n = 1; n <= N_samples; ++n) {
                 {
-                current_statement_begin__ = 86;
+                current_statement_begin__ = 82;
                 validate_non_negative_index("logits", "N_bins", N_bins);
                 Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> logits(N_bins);
                 stan::math::initialize(logits, DUMMY_VAR__);
                 stan::math::fill(logits, DUMMY_VAR__);
-                current_statement_begin__ = 87;
+                current_statement_begin__ = 83;
                 for (int m = 1; m <= N_bins; ++m) {
-                    current_statement_begin__ = 88;
+                    current_statement_begin__ = 84;
                     stan::model::assign(logits, 
                                 stan::model::cons_list(stan::model::index_uni(m), stan::model::nil_index_list()), 
                                 multiply(stan::model::rvalue(design_X, stan::model::cons_list(stan::model::index_uni(n), stan::model::cons_list(stan::model::index_omni(), stan::model::nil_index_list())), "design_X"), transpose(stan::model::rvalue(beta, stan::model::cons_list(stan::model::index_uni(m), stan::model::cons_list(stan::model::index_omni(), stan::model::nil_index_list())), "beta"))), 
                                 "assigning variable logits");
                 }
-                current_statement_begin__ = 90;
+                current_statement_begin__ = 86;
                 stan::math::assign(logits, softmax(logits));
-                current_statement_begin__ = 91;
+                current_statement_begin__ = 87;
                 for (int m = 1; m <= N_bins; ++m) {
-                    current_statement_begin__ = 92;
+                    current_statement_begin__ = 88;
                     stan::model::assign(mu, 
                                 stan::model::cons_list(stan::model::index_uni(n), stan::model::cons_list(stan::model::index_uni(m), stan::model::nil_index_list())), 
                                 get_base1(logits, m, "logits", 1), 
@@ -785,19 +785,22 @@ public:
                 }
                 }
             }
-            current_statement_begin__ = 96;
+            current_statement_begin__ = 92;
             for (int i = 1; i <= N_samples; ++i) {
-                current_statement_begin__ = 97;
+                current_statement_begin__ = 93;
                 for (int j = 1; j <= N_bins; ++j) {
-                    current_statement_begin__ = 98;
+                    current_statement_begin__ = 94;
                     stan::model::assign(p_zero, 
                                 stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
                                 pow((1 - get_base1(mu, i, j, "mu", 1)), (get_base1(ESS, i, "ESS", 1) * phi)), 
                                 "assigning variable p_zero");
-                    current_statement_begin__ = 99;
+                }
+                current_statement_begin__ = 99;
+                for (int j = 1; j <= N_bins; ++j) {
+                    current_statement_begin__ = 100;
                     stan::model::assign(p_one, 
                                 stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
-                                pow(get_base1(mu, i, j, "mu", 1), (get_base1(ESS, i, "ESS", 1) * phi)), 
+                                ((1 - get_base1(p_zero, i, j, "p_zero", 1)) * prod(stan::model::rvalue(p_zero, stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_multi(stan::model::rvalue(prod_idx, stan::model::cons_list(stan::model::index_uni(j), stan::model::cons_list(stan::model::index_omni(), stan::model::nil_index_list())), "prod_idx")), stan::model::nil_index_list())), "p_zero"))), 
                                 "assigning variable p_one");
                 }
             }
@@ -805,13 +808,15 @@ public:
             // validate transformed parameters
             const char* function__ = "validate transformed params";
             (void) function__;  // dummy to suppress unused var warning
-            current_statement_begin__ = 67;
+            current_statement_begin__ = 63;
+            check_greater_or_equal(function__, "phi", phi, 0);
+            current_statement_begin__ = 64;
             check_greater_or_equal(function__, "p_zero", p_zero, 0);
             check_less_or_equal(function__, "p_zero", p_zero, 1);
-            current_statement_begin__ = 68;
+            current_statement_begin__ = 65;
             check_greater_or_equal(function__, "p_one", p_one, 0);
             check_less_or_equal(function__, "p_one", p_one, 1);
-            current_statement_begin__ = 70;
+            current_statement_begin__ = 67;
             check_greater_or_equal(function__, "mu", mu, 0);
             check_less_or_equal(function__, "mu", mu, 1);
             // write transformed parameters
@@ -900,64 +905,59 @@ public:
                                 (stan::model::rvalue(log_lik, stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), "log_lik") + bernoulli_log(get_base1(get_base1(is_zero, i, "is_zero", 1), j, "is_zero", 2), get_base1(p_zero, i, j, "p_zero", 1))), 
                                 "assigning variable log_lik");
                     current_statement_begin__ = 147;
-                    stan::model::assign(log_lik, 
-                                stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
-                                (stan::model::rvalue(log_lik, stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), "log_lik") + bernoulli_log(get_base1(get_base1(is_one, i, "is_one", 1), j, "is_one", 2), get_base1(p_one, i, j, "p_one", 1))), 
-                                "assigning variable log_lik");
-                    current_statement_begin__ = 148;
                     if (as_bool(logical_eq(get_base1(get_base1(is_proportion, i, "is_proportion", 1), j, "is_proportion", 2), 1))) {
-                        current_statement_begin__ = 149;
+                        current_statement_begin__ = 148;
                         stan::math::assign(alpha_temp, ((get_base1(mu, i, j, "mu", 1) * get_base1(ESS, i, "ESS", 1)) * phi));
-                        current_statement_begin__ = 150;
+                        current_statement_begin__ = 149;
                         stan::math::assign(beta_temp, (((1 - get_base1(mu, i, j, "mu", 1)) * get_base1(ESS, i, "ESS", 1)) * phi));
-                        current_statement_begin__ = 151;
+                        current_statement_begin__ = 150;
                         stan::model::assign(log_lik, 
                                     stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
                                     (stan::model::rvalue(log_lik, stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), "log_lik") + ((((stan::math::log(((1 - get_base1(p_zero, i, j, "p_zero", 1)) - get_base1(p_one, i, j, "p_one", 1))) + ((alpha_temp - 1) * get_base1(logX, i, j, "logX", 1))) + ((beta_temp - 1) * get_base1(logNX, i, j, "logNX", 1))) - (((alpha_temp + beta_temp) - 1) * stan::math::log(get_base1(ESS, i, "ESS", 1)))) - lbeta(alpha_temp, beta_temp))), 
                                     "assigning variable log_lik");
                     }
-                    current_statement_begin__ = 155;
+                    current_statement_begin__ = 154;
                     if (as_bool(logical_eq(postpred, 1))) {
-                        current_statement_begin__ = 156;
+                        current_statement_begin__ = 155;
                         stan::model::assign(newy_is_zero, 
                                     stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
                                     bernoulli_rng(get_base1(p_zero, i, j, "p_zero", 1), base_rng__), 
                                     "assigning variable newy_is_zero");
-                        current_statement_begin__ = 157;
+                        current_statement_begin__ = 156;
                         if (as_bool(logical_eq(get_base1(get_base1(newy_is_zero, i, "newy_is_zero", 1), j, "newy_is_zero", 2), 1))) {
-                            current_statement_begin__ = 157;
+                            current_statement_begin__ = 156;
                             stan::model::assign(ynew, 
                                         stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
                                         0.0, 
                                         "assigning variable ynew");
                         }
-                        current_statement_begin__ = 158;
+                        current_statement_begin__ = 157;
                         stan::model::assign(newy_is_one, 
                                     stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
                                     bernoulli_rng(get_base1(p_one, i, j, "p_one", 1), base_rng__), 
                                     "assigning variable newy_is_one");
-                        current_statement_begin__ = 159;
+                        current_statement_begin__ = 158;
                         if (as_bool(logical_eq(get_base1(get_base1(newy_is_one, i, "newy_is_one", 1), j, "newy_is_one", 2), 1))) {
-                            current_statement_begin__ = 159;
+                            current_statement_begin__ = 158;
                             stan::model::assign(ynew, 
                                         stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
                                         1.0, 
                                         "assigning variable ynew");
                         }
-                        current_statement_begin__ = 160;
+                        current_statement_begin__ = 159;
                         stan::math::assign(newy_is_proportion, (get_base1(get_base1(newy_is_zero, i, "newy_is_zero", 1), j, "newy_is_zero", 2) + get_base1(get_base1(newy_is_one, i, "newy_is_one", 1), j, "newy_is_one", 2)));
-                        current_statement_begin__ = 161;
+                        current_statement_begin__ = 160;
                         if (as_bool(logical_eq(newy_is_proportion, 0))) {
-                            current_statement_begin__ = 162;
+                            current_statement_begin__ = 161;
                             stan::math::assign(alpha_temp, (get_base1(mu, i, j, "mu", 1) * get_base1(ESS, i, "ESS", 1)));
-                            current_statement_begin__ = 163;
+                            current_statement_begin__ = 162;
                             stan::math::assign(beta_temp, ((1 - get_base1(mu, i, j, "mu", 1)) * get_base1(ESS, i, "ESS", 1)));
-                            current_statement_begin__ = 164;
+                            current_statement_begin__ = 163;
                             stan::model::assign(ynew, 
                                         stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
                                         beta_rng(alpha_temp, beta_temp, base_rng__), 
                                         "assigning variable ynew");
-                            current_statement_begin__ = 165;
+                            current_statement_begin__ = 164;
                             stan::model::assign(ynew, 
                                         stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list())), 
                                         (get_base1(get_base1(ynew, i, "ynew", 1), j, "ynew", 2) * get_base1(ESS, i, "ESS", 1)), 
