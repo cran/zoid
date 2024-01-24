@@ -12,7 +12,7 @@
 
 <meta name="author" content />
 
-<meta name="date" content="2023-09-11" />
+<meta name="date" content="2024-01-24" />
 
 <title>Fitting models with zoid</title>
 
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Fitting models with zoid</h1>
 <h4 class="author"></h4>
-<h4 class="date">2023-09-11</h4>
+<h4 class="date">2024-01-24</h4>
 
 
 
@@ -443,24 +443,35 @@ estimates (and uncertainty intervals) around proportions,</p>
 <span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>fitted_vals <span class="ot">=</span> <span class="fu">get_fitted</span>(fit_1)</span>
 <span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="fu">head</span>(fitted_vals)</span></code></pre></div>
 <pre><code>##   obs group       mean     median         lo         hi
-## 1   1     1 0.03304676 0.03304693 0.03067607 0.03526062
-## 2   2     1 0.03304676 0.03304693 0.03067607 0.03526062
-## 3   3     1 0.03304676 0.03304693 0.03067607 0.03526062
-## 4   4     1 0.03304676 0.03304693 0.03067607 0.03526062
-## 5   5     1 0.03304676 0.03304693 0.03067607 0.03526062
-## 6   6     1 0.03304676 0.03304693 0.03067607 0.03526062</code></pre>
+## 1   1     1 0.03297343 0.03293401 0.03073215 0.03537796
+## 2   2     1 0.03297343 0.03293401 0.03073215 0.03537796
+## 3   3     1 0.03297343 0.03293401 0.03073215 0.03537796
+## 4   4     1 0.03297343 0.03293401 0.03073215 0.03537796
+## 5   5     1 0.03297343 0.03293401 0.03073215 0.03537796
+## 6   6     1 0.03297343 0.03293401 0.03073215 0.03537796</code></pre>
 <p>Second, we can return all parameters (including betas for
 coefficients and <span class="math inline">\(\phi\)</span>, the
 overdispersion term)</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>fitted_vals <span class="ot">=</span> <span class="fu">get_pars</span>(fit_1)</span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">head</span>(fitted_vals<span class="sc">$</span>betas)</span></code></pre></div>
-<pre><code>##   group cov         par         mean        median          lo         hi
-## 1     1   1 (Intercept) -0.010268176 -0.0084616617 -0.08080006 0.05668300
-## 2     2   1 (Intercept) -0.004048602 -0.0003813138 -0.04768798 0.04368092
-## 3     3   1 (Intercept) -0.021743566 -0.0336177583 -0.06290017 0.03220699
-## 4     4   1 (Intercept) -0.018687932 -0.0164387421 -0.07777185 0.03689455
-## 5     5   1 (Intercept) -0.011336763 -0.0104924376 -0.06082179 0.04359517
-## 6     6   1 (Intercept) -0.012052885 -0.0122642340 -0.06748868 0.05209802</code></pre>
+<pre><code>##   m cov         par        mean       median          lo         hi
+## 1 1   1 (Intercept) -0.01228533 -0.012246645 -0.08396062 0.06038681
+## 2 2   1 (Intercept) -0.02500844 -0.021716494 -0.07386585 0.02544750
+## 3 3   1 (Intercept) -0.01173933 -0.015288713 -0.05752490 0.04729847
+## 4 4   1 (Intercept) -0.01271186 -0.013370911 -0.05564834 0.03140008
+## 5 5   1 (Intercept) -0.00943012 -0.017199185 -0.04218768 0.04559571
+## 6 6   1 (Intercept) -0.00284256 -0.002717758 -0.04878939 0.04051401</code></pre>
+</div>
+<div id="random-effects" class="section level3">
+<h3>Random effects</h3>
+<p>For models with grouping variables or factor predictor variables,
+either fixed or random effects may be included. Both need to be included
+via the formula interface, and random effects may be included in the
+typical form (<code>lme4</code>, <code>glmmTMB</code>),</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="er">~</span> (<span class="dv">1</span><span class="sc">|</span>group)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="er">~</span> (<span class="dv">1</span><span class="sc">|</span>group) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>year) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>season)</span></code></pre></div>
+<p>For now, only random intercepts are allowed; random slopes will be
+included eventually.</p>
 </div>
 </div>
 
